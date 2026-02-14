@@ -4,6 +4,7 @@
 #include "confighandler.h"
 #include "screengrabber.h"
 #include <QColor>
+#include <QDir>
 #include <QFileInfo>
 #include <QImageWriter>
 #include <QKeySequence>
@@ -274,6 +275,36 @@ QVariant ExistingDir::fallback()
 QString ExistingDir::expected()
 {
     return QStringLiteral("existing directory");
+}
+
+// VIDEO SAVE DIR
+
+bool VideoSaveDir::check(const QVariant& val)
+{
+    if (!val.canConvert<QString>() || val.toString().isEmpty()) {
+        return false;
+    }
+    QFileInfo info(val.toString());
+    return info.isDir() && info.exists();
+}
+
+QVariant VideoSaveDir::fallback()
+{
+    using SP = QStandardPaths;
+    // Default to ~/Videos/flameshot
+    QString videosDir = SP::writableLocation(SP::MoviesLocation);
+    if (videosDir.isEmpty()) {
+        videosDir = SP::writableLocation(SP::HomeLocation);
+    }
+    QString path = QDir(videosDir).filePath("flameshot");
+    // Create directory if it doesn't exist
+    QDir().mkpath(path);
+    return path;
+}
+
+QString VideoSaveDir::expected()
+{
+    return QStringLiteral("existing directory for video recordings");
 }
 
 // FILENAME PATTERN

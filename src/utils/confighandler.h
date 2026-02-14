@@ -142,6 +142,23 @@ public:
                          showSelectionGeometryHideTime,
                          int)
 
+#ifdef ENABLE_VIDEO_RECORDING
+    CONFIG_GETTER_SETTER(videoSavePath, setVideoSavePath, QString)
+    CONFIG_GETTER_SETTER(videoFilenamePattern, setVideoFilenamePattern, QString)
+    CONFIG_GETTER_SETTER(videoFramerate, setVideoFramerate, int)
+    CONFIG_GETTER_SETTER(videoUseCrf, setVideoUseCrf, bool)
+    CONFIG_GETTER_SETTER(videoCrf, setVideoCrf, int)
+    CONFIG_GETTER_SETTER(videoBitrate, setVideoBitrate, int)
+    CONFIG_GETTER_SETTER(videoPreset, setVideoPreset, QString)
+    CONFIG_GETTER_SETTER(videoFormat, setVideoFormat, QString)
+    CONFIG_GETTER_SETTER(videoCodec, setVideoCodec, QString)
+    CONFIG_GETTER_SETTER(videoAspectRatio, setVideoAspectRatio, QString)
+    CONFIG_GETTER_SETTER(videoFullscreen, setVideoFullscreen, bool)
+    CONFIG_GETTER_SETTER(videoOutputMode, setVideoOutputMode, QString)
+    CONFIG_GETTER_SETTER(videoUseCustomCommand, setVideoUseCustomCommand, bool)
+    CONFIG_GETTER_SETTER(videoCustomCommand, setVideoCustomCommand, QString)
+#endif
+
     // SPECIAL CASES
     bool startupLaunch();
     void setStartupLaunch(const bool);

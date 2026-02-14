@@ -5,6 +5,10 @@
 #include "src/utils/globalvalues.h"
 
 #include "src/utils/confighandler.h"
+
+#ifdef ENABLE_VIDEO_RECORDING
+#include "src/recording/recordingrequest.h"
+#endif
 #include <QApplication>
 #include <QMenu>
 #include <QTimer>
@@ -125,6 +129,16 @@ void TrayIcon::initMenu()
     });
 #endif
     });
+#ifdef ENABLE_VIDEO_RECORDING
+    auto* recordAction = new QAction(tr("&Screen Recording"), this);
+    connect(recordAction, &QAction::triggered, this, [this]() {
+        QTimer::singleShot(400, this, []() {
+            RecordingRequest req;
+            Flameshot::instance()->record(req);
+        });
+    });
+#endif
+
     auto* launcherAction = new QAction(tr("&Open Launcher"), this);
     connect(launcherAction,
             &QAction::triggered,
@@ -186,6 +200,9 @@ void TrayIcon::initMenu()
             &Flameshot::openSavePath);
 
     m_menu->addAction(m_captureAction);
+#ifdef ENABLE_VIDEO_RECORDING
+    m_menu->addAction(recordAction);
+#endif
     m_menu->addAction(launcherAction);
     m_menu->addSeparator();
 #ifdef ENABLE_IMGUR

@@ -15,6 +15,10 @@ class CaptureLauncher;
 #ifdef ENABLE_IMGUR
 class UploadHistory;
 #endif
+#ifdef ENABLE_VIDEO_RECORDING
+class RecordingWidget;
+class RecordingRequest;
+#endif
 #if (defined(Q_OS_MAC) || defined(Q_OS_MACOS))
 class QHotkey;
 #endif
@@ -57,6 +61,10 @@ public slots:
     void history();
 #endif
 
+#ifdef ENABLE_VIDEO_RECORDING
+    void record(const RecordingRequest& req);
+#endif
+
     void openSavePath();
 
     QVersionNumber getVersion();
@@ -89,6 +97,9 @@ private:
     QPointer<InfoWindow> m_infoWindow;
     QPointer<CaptureLauncher> m_launcherWindow;
     QPointer<ConfigWindow> m_configWindow;
+#ifdef ENABLE_VIDEO_RECORDING
+    QPointer<RecordingWidget> m_recordingWindow;
+#endif
 
 #if (defined(Q_OS_MAC) || defined(Q_OS_MACOS))
     QHotkey* m_HotkeyScreenshotCapture;

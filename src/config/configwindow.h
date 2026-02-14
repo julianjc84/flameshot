@@ -11,6 +11,9 @@ class GeneralConf;
 class QFileSystemWatcher;
 class VisualsEditor;
 class QWidget;
+#ifdef ENABLE_VIDEO_RECORDING
+class VideoConf;
+#endif
 
 class ConfigWindow : public QWidget
 {
@@ -38,6 +41,11 @@ private:
 
     VisualsEditor* m_visuals;
     QWidget* m_visualsTab;
+
+#ifdef ENABLE_VIDEO_RECORDING
+    VideoConf* m_videoConfig;
+    QWidget* m_videoConfigTab;
+#endif
 
     void initErrorIndicator(QWidget* tab, QWidget* widget);
 };

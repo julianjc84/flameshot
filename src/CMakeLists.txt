@@ -23,6 +23,17 @@ if (USE_WAYLAND_CLIPBOARD)
     find_package(KF6GuiAddons)
 endif()
 
+# Video recording dependencies
+# Note: FFmpeg CLI is used at runtime (not linked), so no libav* dependency needed
+# PipeWire is Linux-only (Wayland screen recording)
+if (ENABLE_VIDEO_RECORDING AND UNIX AND NOT APPLE)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PIPEWIRE libpipewire-0.3)
+    if (PIPEWIRE_FOUND)
+        add_compile_definitions(HAVE_PIPEWIRE)
+    endif()
+endif()
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -112,6 +123,9 @@ add_subdirectory(core)
 add_subdirectory(utils)
 add_subdirectory(widgets)
 add_subdirectory(tools)
+if (ENABLE_VIDEO_RECORDING)
+    add_subdirectory(recording)
+endif()
 
 
 set(FLAMESHOT_TS_FILES
@@ -212,6 +226,8 @@ target_include_directories(
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/widgets>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/widgets/panel>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/widgets/capture>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/recording>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/widgets/recording>
          $<INSTALL_INTERFACE:include/mylib>)
 target_include_directories(
     flameshot
@@ -252,6 +268,15 @@ endif()
 if (USE_WAYLAND_CLIPBOARD)
   target_compile_definitions(flameshot PRIVATE USE_WAYLAND_CLIPBOARD=1)
   target_link_libraries(flameshot KF6::GuiAddons)
+endif()
+
+# Link PipeWire for Wayland video recording (frame grabbing, Linux only)
+# Note: FFmpeg is used via CLI at runtime, not linked
+if (ENABLE_VIDEO_RECORDING AND UNIX AND NOT APPLE)
+  if (PIPEWIRE_FOUND)
+    target_include_directories(flameshot PRIVATE ${PIPEWIRE_INCLUDE_DIRS})
+    target_link_libraries(flameshot ${PIPEWIRE_LIBRARIES})
+  endif()
 endif()
 
 if (APPLE)

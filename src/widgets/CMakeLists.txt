@@ -1,5 +1,8 @@
 add_subdirectory(panel)
 add_subdirectory(capture)
+if (ENABLE_VIDEO_RECORDING)
+    add_subdirectory(recording)
+endif()
 
 # Required to generate MOC
 target_sources(

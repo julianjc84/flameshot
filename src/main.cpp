@@ -33,6 +33,10 @@
 #include <desktopinfo.h>
 #endif
 
+#ifdef ENABLE_VIDEO_RECORDING
+#include "src/recording/recordingrequest.h"
+#endif
+
 // Required for saving button list QList<CaptureTool::Type>
 Q_DECLARE_METATYPE(QList<int>)
 
@@ -281,6 +285,12 @@ int main(int argc, char* argv[])
       QStringLiteral("screen"),
       QObject::tr("Capture a screenshot of the specified monitor."));
 
+#ifdef ENABLE_VIDEO_RECORDING
+    CommandArgument recordArgument(
+      QStringLiteral("record"),
+      QObject::tr("Record screen region."));
+#endif
+
     // Options
     CommandOption pathOption(
       { "p", "path" },
@@ -345,6 +355,14 @@ int main(int argc, char* argv[])
         QObject::tr("default: screen containing the cursor"),
       QObject::tr("Screen number"),
       QStringLiteral("-1"));
+
+#ifdef ENABLE_VIDEO_RECORDING
+    CommandOption framerateOption(
+      "fps",
+      QObject::tr("Recording framerate (default: 30)"),
+      QStringLiteral("fps"),
+      QStringLiteral("30"));
+#endif
 
     // Add checkers
     auto colorChecker = [](const QString& colorCode) -> bool {
@@ -414,6 +432,9 @@ int main(int argc, char* argv[])
     parser.AddArgument(fullArgument);
     parser.AddArgument(launcherArgument);
     parser.AddArgument(configArgument);
+#ifdef ENABLE_VIDEO_RECORDING
+    parser.AddArgument(recordArgument);
+#endif
     auto helpOption = parser.addHelpOption();
     auto versionOption = parser.addVersionOption();
     parser.AddOptions({ pathOption,
@@ -452,6 +473,10 @@ int main(int argc, char* argv[])
                         contrastColorOption,
                         checkOption },
                       configArgument);
+#ifdef ENABLE_VIDEO_RECORDING
+    parser.AddOptions({ pathOption, regionOption, framerateOption },
+                      recordArgument);
+#endif
     // Parse
     if (!parser.parse(qApp->arguments())) {
         goto finish;
@@ -679,6 +704,31 @@ int main(int argc, char* argv[])
             }
         }
     }
+#ifdef ENABLE_VIDEO_RECORDING
+    else if (parser.isSet(recordArgument)) { // RECORD
+        reinitializeAsQApplication(argc, argv, translator, qtTranslator);
+
+        // Option values
+        QString path = parser.value(pathOption);
+        if (!path.isEmpty()) {
+            path = QDir(path).absolutePath();
+        }
+        QString region = parser.value(regionOption);
+        int fps = parser.value(framerateOption).toInt();
+        if (fps <= 0 || fps > 120) {
+            fps = 30;
+        }
+
+        RecordingRequest req(RecordingRequest::REGION_MODE, path);
+        req.setFramerate(fps);
+        if (!region.isEmpty()) {
+            req.setInitialRegion(Region().value(region).toRect());
+        }
+
+        Flameshot::instance()->record(req);
+        return qApp->exec();
+    }
+#endif
 finish:
 
     return 0;

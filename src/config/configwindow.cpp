@@ -9,6 +9,9 @@
 #include "src/config/shortcutswidget.h"
 #include "src/config/strftimechooserwidget.h"
 #include "src/config/visualseditor.h"
+#ifdef ENABLE_VIDEO_RECORDING
+#include "src/config/videoconf.h"
+#endif
 #include "src/utils/colorutils.h"
 #include "src/utils/confighandler.h"
 #include "src/utils/globalvalues.h"
@@ -86,6 +89,17 @@ ConfigWindow::ConfigWindow(QWidget* parent)
     m_tabWidget->addTab(
       m_shortcutsTab, QIcon(modifier + "shortcut.svg"), tr("Shortcuts"));
 
+#ifdef ENABLE_VIDEO_RECORDING
+    // video recording
+    m_videoConfig = new VideoConf();
+    m_videoConfigTab = new QWidget();
+    auto* videoConfigLayout = new QVBoxLayout(m_videoConfigTab);
+    m_videoConfigTab->setLayout(videoConfigLayout);
+    videoConfigLayout->addWidget(m_videoConfig);
+    m_tabWidget->addTab(
+      m_videoConfigTab, QIcon(modifier + "config.svg"), tr("Screen Recording"));
+#endif
+
     // connect update sigslots
     connect(this,
             &ConfigWindow::updateChildren,
@@ -99,12 +113,21 @@ ConfigWindow::ConfigWindow(QWidget* parent)
             &ConfigWindow::updateChildren,
             m_generalConfig,
             &GeneralConf::updateComponents);
+#ifdef ENABLE_VIDEO_RECORDING
+    connect(this,
+            &ConfigWindow::updateChildren,
+            m_videoConfig,
+            &VideoConf::updateComponents);
+#endif
 
     // Error indicator (this must come last)
     initErrorIndicator(m_visualsTab, m_visuals);
     initErrorIndicator(m_filenameEditorTab, m_filenameEditor);
     initErrorIndicator(m_generalConfigTab, m_generalConfig);
     initErrorIndicator(m_shortcutsTab, m_shortcuts);
+#ifdef ENABLE_VIDEO_RECORDING
+    initErrorIndicator(m_videoConfigTab, m_videoConfig);
+#endif
 }
 
 void ConfigWindow::keyPressEvent(QKeyEvent* e)

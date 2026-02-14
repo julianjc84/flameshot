@@ -138,6 +138,23 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("jpegQuality"                 , BoundedInt        ( 0,100,75      )),
     OPTION("reverseArrow"                ,Bool               ( false         )),
     OPTION("insecurePixelate"            ,Bool               ( false         )),
+#ifdef ENABLE_VIDEO_RECORDING
+    // Video recording settings
+    OPTION("videoSavePath"               ,VideoSaveDir       (               )),
+    OPTION("videoFilenamePattern"        ,String             ( "%F_%T"       )),
+    OPTION("videoFramerate"              ,BoundedInt         ( 1, 120, 30    )),
+    OPTION("videoUseCrf"                 ,Bool               ( true          )),
+    OPTION("videoCrf"                    ,BoundedInt         ( 0, 51, 23     )),
+    OPTION("videoBitrate"                ,LowerBoundedInt    ( 100000, 4000000 )),
+    OPTION("videoPreset"                 ,String             ( "ultrafast"   )),
+    OPTION("videoFormat"                 ,String             ( "mp4"         )),
+    OPTION("videoCodec"                  ,String             ( "libx264"     )),
+    OPTION("videoAspectRatio"            ,String             ( "Free"        )),
+    OPTION("videoFullscreen"             ,Bool               ( false         )),
+    OPTION("videoOutputMode"             ,String             ( "video"       )),
+    OPTION("videoUseCustomCommand"       ,Bool               ( false         )),
+    OPTION("videoCustomCommand"          ,String             ( ""            )),
+#endif
 };
 
 static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {

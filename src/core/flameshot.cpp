@@ -20,6 +20,11 @@
 #include "src/widgets/uploadhistory.h"
 #endif
 
+#ifdef ENABLE_VIDEO_RECORDING
+#include "src/recording/recordingrequest.h"
+#include "src/widgets/recording/recordingwidget.h"
+#endif
+
 #include "src/utils/confighandler.h"
 #include "src/utils/screengrabber.h"
 #include "src/widgets/capture/capturewidget.h"
@@ -275,6 +280,49 @@ void Flameshot::history()
     historyWidget->activateWindow();
     historyWidget->raise();
 #endif
+}
+#endif
+
+#ifdef ENABLE_VIDEO_RECORDING
+void Flameshot::record(const RecordingRequest& req)
+{
+    if (!resolveAnyConfigErrors()) {
+        return;
+    }
+
+    if (m_recordingWindow != nullptr) {
+        // Recording already in progress
+        return;
+    }
+
+    m_recordingWindow = new RecordingWidget(req);
+    m_recordingWindow->showFullScreen();
+
+    connect(m_recordingWindow,
+            &RecordingWidget::recordingFinished,
+            this,
+            [this](const QString& path) {
+                AbstractLogger::info()
+                  << QObject::tr("Recording saved to %1").arg(path);
+                m_recordingWindow = nullptr;
+            });
+
+    connect(m_recordingWindow,
+            &RecordingWidget::recordingCancelled,
+            this,
+            [this]() {
+                AbstractLogger::info()
+                  << QObject::tr("Recording cancelled.");
+                m_recordingWindow = nullptr;
+            });
+
+    connect(m_recordingWindow,
+            &RecordingWidget::recordingError,
+            this,
+            [this](const QString& error) {
+                AbstractLogger::error() << error;
+                m_recordingWindow = nullptr;
+            });
 }
 #endif
 
