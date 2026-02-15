@@ -4,7 +4,7 @@
 #pragma once
 
 #include "framegrabber.h"
-#include <QScreen>
+#include <cstdint>
 
 class MacFrameGrabber : public FrameGrabber
 {
@@ -22,6 +22,7 @@ public:
     QString backendName() const override { return QStringLiteral("macOS"); }
 
 private:
-    QScreen* m_screen = nullptr;
+    uint32_t m_displayId = 0;
     qreal m_devicePixelRatio = 1.0;
+    bool m_hasPermission = false;
 };
